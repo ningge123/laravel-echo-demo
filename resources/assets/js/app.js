@@ -34,27 +34,40 @@ const app = new Vue({
         }
     },
     created() {
-        axios.get('/messages').then((response) => {
-            this.messages = response.data
-        })
+        if (User.id) {
+            axios.get('/messages').then((response) => {
+                this.messages = response.data
+            })
 
-        Echo.join('chatroom')
-            .joining((user) => {// 方法会在其他新用户加入到频道时被执行
-                this.$Notice.success({
-                    title: '新用户加入提醒',
-                    desc: '用户:' + user.name + '加入房间'
+            // 用户登录之后加入频道
+            Echo.join('chatroom')
+                .joining((user) => {// 方法会在其他新用户加入到频道时被执行
+                    this.$Notice.success({
+                        title: '新用户加入提醒',
+                        desc: '用户:' + user.name + '加入房间'
+                    });
+                })
+                .listen('PushMessageEvent', (e) => {
+                    e.message.user = e.user;
+                    this.messages.push(e.message)
+                })
+                .leaving((user) => { //会在其他用户退出频道时被执行
+                    this.$Notice.error({
+                        title: '用户退出提醒',
+                        desc: '用户:' + user.name + '退出房间'
+                    });
                 });
-            })
-            .listen('PushMessageEvent', (e) => {
-                e.message.user = e.user;
-                this.messages.push(e.message)
-            })
-            .leaving((user) => { //会在其他用户退出频道时被执行
-                this.$Notice.error({
-                    title: '用户退出提醒',
-                    desc: '用户:' + user.name + '退出房间'
-                });
-            });
+
+            // 监听私有频道
+            Echo.private('App.User.' + User.id)
+                .listen('PrivateMessageEvent', (e) => {
+                    console.log(e)
+                    this.$Notice.success({
+                        title: '您收到一条私有消息',
+                        desc: e.message
+                    });
+                })
+        }
     },
     methods: {
         updateMessage(message) {

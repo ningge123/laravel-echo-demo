@@ -75,6 +75,13 @@
     </div>
 
     <!-- Scripts -->
+    <script>
+        @if(Auth::check())
+            window.User = {!! Auth::user() !!}
+                @else
+            window.User = {}
+        @endif
+    </script>
     <script src="{{ asset('js/app.js') }}"></script>
 </body>
 </html>

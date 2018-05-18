@@ -12415,26 +12415,38 @@ var app = new Vue({
     created: function created() {
         var _this = this;
 
-        __WEBPACK_IMPORTED_MODULE_0_axios___default.a.get('/messages').then(function (response) {
-            _this.messages = response.data;
-        });
+        if (User.id) {
+            __WEBPACK_IMPORTED_MODULE_0_axios___default.a.get('/messages').then(function (response) {
+                _this.messages = response.data;
+            });
 
-        Echo.join('chatroom').joining(function (user) {
-            // 方法会在其他新用户加入到频道时被执行
-            _this.$Notice.success({
-                title: '新用户加入提醒',
-                desc: '用户:' + user.name + '加入房间'
+            // 用户登录之后加入频道
+            Echo.join('chatroom').joining(function (user) {
+                // 方法会在其他新用户加入到频道时被执行
+                _this.$Notice.success({
+                    title: '新用户加入提醒',
+                    desc: '用户:' + user.name + '加入房间'
+                });
+            }).listen('PushMessageEvent', function (e) {
+                e.message.user = e.user;
+                _this.messages.push(e.message);
+            }).leaving(function (user) {
+                //会在其他用户退出频道时被执行
+                _this.$Notice.error({
+                    title: '用户退出提醒',
+                    desc: '用户:' + user.name + '退出房间'
+                });
             });
-        }).listen('PushMessageEvent', function (e) {
-            e.message.user = e.user;
-            _this.messages.push(e.message);
-        }).leaving(function (user) {
-            //会在其他用户退出频道时被执行
-            _this.$Notice.error({
-                title: '用户退出提醒',
-                desc: '用户:' + user.name + '退出房间'
+
+            // 监听私有频道
+            Echo.private('App.User.' + User.id).listen('PrivateMessageEvent', function (e) {
+                console.log(e);
+                _this.$Notice.success({
+                    title: '您收到一条私有消息',
+                    desc: e.message
+                });
             });
-        });
+        }
     },
 
     methods: {
@@ -12507,7 +12519,7 @@ window.Pusher = __webpack_require__(41);
 
 window.Echo = new __WEBPACK_IMPORTED_MODULE_0_laravel_echo___default.a({
   broadcaster: 'pusher',
-  key: '65f5c4e6ce56d46ab2c6', //your-pusher-key
+  key: 'b086c9ca5cc35ac387b1', //your-pusher-key
   cluster: 'ap1',
   encrypted: true
 });
