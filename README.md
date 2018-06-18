@@ -42,24 +42,55 @@ DB_USERNAME=homestead
 DB_PASSWORD=secret
 ```
 
-配置`pusher`:
+配置`redis`:
 ```
-PUSHER_APP_ID=
-PUSHER_APP_KEY=
-PUSHER_APP_SECRET=
-PUSHER_APP_CLUSTER=
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
 ```
 
-然后还需配置`resource/assets/js/bootstrap.js`里的
+然后还需安装`laravel-echo-server`
 ```
-window.Echo = new Echo({
-    broadcaster: 'pusher',
-    key: 'b086c9ca5cc35ac387b1', //your-pusher-key
-    cluster: 'ap1',
-    encrypted: true
-});
+npm install -g laravel-echo-server  # 这里是全局安装
+```
+
+#### 初始化服务端
+
+```shell
+$ laravel-echo-server init 
+? Do you want to run this server in development mode? Yes
+? Which port would you like to serve from? 6001
+? Which database would you like to use to store presence channel members? redis
+? Enter the host of your Laravel authentication server. archerwong.cn
+? Will you be serving on http or https? http
+? Do you want to generate a client ID/Key for HTTP API? Yes
+? Do you want to setup cross domain access to the API? No
+appId: c953434932b06864
+key: 551440289d2d41c81e87d55c1d0217e5
+Configuration file saved. Run laravel-echo-server start to run server.
+```
+#### 运行服务端
+```shell
+$ laravel-echo-server start
+
+L A R A V E L  E C H O  S E R V E R
+
+version 1.3.6
+
+⚠ Starting server in DEV mode...
+
+✔  Running at localhost on port 6001
+✔  Channels are ready.
+✔  Listening for http events...
+✔  Listening for redis events...
+
+Server ready!
 ```
 
 最后附上`GitHub`地址:[https://github.com/ningge123/laravel-echo-demo](https://github.com/ningge123/laravel-echo-demo)
+
+#### 备注
+
+之前使用的是`pusher`发现太慢了，然后改成`redis`
 
 感谢!:laughing:
